@@ -361,7 +361,7 @@ Config file: `~/.nanobot/config.json`
 ### Model Aliases
 
 > [!TIP]
-> Model aliases let you define short, memorable names for complex model identifiers. Include the provider prefix in your alias config (e.g., `hosted_vllm/`, `openrouter/`).
+> Model aliases let you define short, memorable names for complex model identifiers. The provider prefix is added automatically based on which provider you configure the alias under.
 
 **Example: NVIDIA NIM with aliases**
 
@@ -394,9 +394,9 @@ Config file: `~/.nanobot/config.json`
     "openrouter": {
       "apiKey": "sk-or-xxx",
       "models": {
-        "fast": "openrouter/anthropic/claude-haiku-3.5",
-        "smart": "openrouter/anthropic/claude-opus-4-5",
-        "code": "openrouter/openai/gpt-4-turbo"
+        "fast": "anthropic/claude-haiku-3.5",
+        "smart": "anthropic/claude-opus-4-5",
+        "code": "openai/gpt-4-turbo"
       }
     }
   },
@@ -411,8 +411,9 @@ Config file: `~/.nanobot/config.json`
 **How it works:**
 
 1. When you specify a model (e.g., `"glm4"`), nanobot checks all provider `models` dictionaries
-2. If found as an alias, it uses the exact model name from config (should include provider prefix like `hosted_vllm/`)
-3. If no alias matches, falls back to keyword matching (existing behavior)
+2. If found as an alias under `providers.vllm`, it adds the `hosted_vllm/` prefix → `hosted_vllm/z-ai/glm4.7`
+3. If found under `providers.openrouter`, it adds the `openrouter/` prefix → `openrouter/anthropic/claude-haiku-3.5`
+4. If no alias matches, falls back to keyword matching (existing behavior)
 
 **Benefits:**
 
