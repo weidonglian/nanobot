@@ -154,27 +154,42 @@ class Config(BaseSettings):
         return None, None
 
     def resolve_model(self, model: str) -> tuple[str, ProviderConfig | None]:
-        """Resolve model alias to actual model and provider.
+        """Resolve model alias to actual model with provider prefix.
 
         Args:
             model: Model name or alias
 
         Returns:
             (resolved_model, provider_config) tuple.
-            If alias found, returns (actual_model, provider_config).
+            If alias found, returns (model_with_prefix, provider_config).
             If alias not found, returns (model, None).
 
         Note:
-            The resolved_model should include the provider prefix (e.g., "hosted_vllm/z-ai/glm4.7").
+            The alias config should NOT include the provider prefix.
+            This function adds the prefix based on which provider the alias came from.
         """
         p = self.providers
+        # Provider map: (provider_name, provider_config, prefix)
         provider_map = [
-            p.vllm, p.openrouter, p.aihubmix, p.anthropic, p.openai,
-            p.deepseek, p.gemini, p.zhipu, p.dashscope, p.moonshot, p.groq,
+            ("vllm", p.vllm, "hosted_vllm"),
+            ("openrouter", p.openrouter, "openrouter"),
+            ("aihubmix", p.aihubmix, "openai"),
+            ("anthropic", p.anthropic, "anthropic"),
+            ("openai", p.openai, "openai"),
+            ("deepseek", p.deepseek, "deepseek"),
+            ("gemini", p.gemini, "gemini"),
+            ("zhipu", p.zhipu, "zhipu"),
+            ("dashscope", p.dashscope, "dashscope"),
+            ("moonshot", p.moonshot, "moonshot"),
+            ("groq", p.groq, "groq"),
         ]
-        for provider_config in provider_map:
+        for provider_name, provider_config, prefix in provider_map:
             if model in provider_config.models:
-                return provider_config.models[model], provider_config
+                actual_model = provider_config.models[model]
+                # Add provider prefix if not already present
+                if not actual_model.startswith(f"{prefix}/"):
+                    actual_model = f"{prefix}/{actual_model}"
+                return actual_model, provider_config
         return model, None
 
     def get_provider(self, model: str | None = None) -> ProviderConfig | None:
