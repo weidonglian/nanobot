@@ -12,7 +12,7 @@
   </p>
 </div>
 
-🐈 **nanobot** is an **ultra-lightweight** personal AI assistant inspired by [Clawdbot](https://github.com/openclaw/openclaw) 
+🐈 **nanobot** is an **ultra-lightweight** personal AI assistant inspired by [Clawdbot](https://github.com/openclaw/openclaw)
 
 ⚡️ Delivers core agent functionality in just **~4,000** lines of code — **99% smaller** than Clawdbot's 430k+ lines.
 
@@ -438,6 +438,69 @@ That's it! Environment variables, model prefixing, config matching, and `nanobot
 | `strip_model_prefix` | Strip existing prefix before re-prefixing | `True` (for AiHubMix) |
 
 </details>
+
+### Model Aliases
+
+> [!TIP]
+> Model aliases let you define short, memorable names for complex model identifiers. Include the provider prefix in your alias config (e.g., `hosted_vllm/`, `openrouter/`).
+
+**Example: NVIDIA NIM with aliases**
+
+```json
+{
+  "providers": {
+    "vllm": {
+      "apiKey": "nvapi-xxx",
+      "apiBase": "https://integrate.api.nvidia.com/v1",
+      "models": {
+        "glm4": "z-ai/glm4.7",
+        "llama": "meta-llama/Llama-3.1-8B-Instruct",
+        "mistral": "mistralai/Mistral-7B-Instruct-v0.3"
+      }
+    }
+  },
+  "agents": {
+    "defaults": {
+      "model": "glm4"
+    }
+  }
+}
+```
+
+**Example: Business-friendly aliases**
+
+```json
+{
+  "providers": {
+    "openrouter": {
+      "apiKey": "sk-or-xxx",
+      "models": {
+        "fast": "openrouter/anthropic/claude-haiku-3.5",
+        "smart": "openrouter/anthropic/claude-opus-4-5",
+        "code": "openrouter/openai/gpt-4-turbo"
+      }
+    }
+  },
+  "agents": {
+    "defaults": {
+      "model": "smart"
+    }
+  }
+}
+```
+
+**How it works:**
+
+1. When you specify a model (e.g., `"glm4"`), nanobot checks all provider `models` dictionaries
+2. If found as an alias, it uses the exact model name from config (should include provider prefix like `hosted_vllm/`)
+3. If no alias matches, falls back to keyword matching (existing behavior)
+
+**Benefits:**
+
+- ✅ Zero breaking changes — opt-in feature
+- ✅ Simple O(1) dictionary lookup
+- ✅ Works with all providers (vLLM, OpenRouter, AiHubMix, etc.)
+- ✅ Flexible naming (business-friendly, environment-specific, etc.)
 
 
 ### Security
