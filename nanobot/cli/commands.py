@@ -336,7 +336,6 @@ def gateway(
         bus=bus,
         provider=provider,
         workspace=config.workspace_path,
-        model=config.agents.defaults.model,
         max_iterations=config.agents.defaults.max_tool_iterations,
         brave_api_key=config.tools.web.search.api_key or None,
         exec_config=config.tools.exec,
@@ -783,7 +782,12 @@ def status():
     if config_path.exists():
         from nanobot.providers.registry import PROVIDERS
 
-        console.print(f"Model: {config.agents.defaults.model}")
+        raw_model = config.agents.defaults.model
+        resolved_model, _ = config.resolve_model(raw_model)
+        if raw_model != resolved_model:
+            console.print(f"Model: {raw_model} [dim]→ {resolved_model}[/dim]")
+        else:
+            console.print(f"Model: {raw_model}")
         
         # Check API keys from registry
         for spec in PROVIDERS:
