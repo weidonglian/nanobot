@@ -211,7 +211,6 @@ def gateway(
         bus=bus,
         provider=provider,
         workspace=config.workspace_path,
-        model=config.agents.defaults.model,
         max_iterations=config.agents.defaults.max_tool_iterations,
         brave_api_key=config.tools.web.search.api_key or None,
         exec_config=config.tools.exec,
@@ -641,7 +640,12 @@ def status():
     console.print(f"Workspace: {workspace} {'[green]✓[/green]' if workspace.exists() else '[red]✗[/red]'}")
 
     if config_path.exists():
-        console.print(f"Model: {config.agents.defaults.model}")
+        raw_model = config.agents.defaults.model
+        resolved_model = config.resolved_model
+        if raw_model != resolved_model:
+            console.print(f"Model: {raw_model} [dim]→ {resolved_model}[/dim]")
+        else:
+            console.print(f"Model: {raw_model}")
         
         # Check API keys
         has_openrouter = bool(config.providers.openrouter.api_key)
